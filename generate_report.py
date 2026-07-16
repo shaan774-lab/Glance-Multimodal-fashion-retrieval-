@@ -8,6 +8,17 @@ from reportlab.lib.units import inch
 
 def build_pdf():
     pdf_filename = "Glance_Submission_Report_Final.pdf"
+    base_name = "Glance_Submission_Report_Final"
+    version = 1
+    while True:
+        try:
+            with open(pdf_filename, "ab") as f:
+                pass
+            break
+        except PermissionError:
+            version += 1
+            pdf_filename = f"{base_name}_v{version}.pdf"
+
     print(f"Generating PDF report: {pdf_filename}...")
     
     # Load evaluation results if available
@@ -231,12 +242,12 @@ def build_pdf():
         h2_style
     ))
     story.append(Paragraph(
-        "$$\\text{Score} = w_1 \\cdot \\text{Sim}_{\\text{visual}}(Q, I) + w_2 \\cdot \\text{Sim}_{\\text{textual}}(Q, C) + w_3 \\cdot \\text{Score}_{\\text{attribute}}(Q, A)$$,",
-        body_style
+        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Score</b> = <i>w</i><sub>1</sub> · <b>Sim</b><sub>visual</sub>(<i>Q</i>, <i>I</i>) + <i>w</i><sub>2</sub> · <b>Sim</b><sub>textual</sub>(<i>Q</i>, <i>C</i>) + <i>w</i><sub>3</sub> · <b>Score</b><sub>attribute</sub>(<i>Q</i>, <i>A</i>)",
+        ParagraphStyle('EquationStyle', parent=body_style, leftIndent=24, fontName='Helvetica-BoldOblique')
     ))
     story.append(Paragraph(
-        "where Sim represents cosine similarity, $Q$ is query, $I$ is image, $C$ is caption, and $A$ represents parsed attributes. "
-        "By default, weights are set to $w_1=0.5, w_2=0.2, w_3=0.3$.",
+        "where <b>Sim</b> represents cosine similarity, <i>Q</i> is the query, <i>I</i> is the image, <i>C</i> is the caption, and <i>A</i> represents the parsed attributes. "
+        "By default, the weights are set to: <i>w</i><sub>1</sub> = 0.5, <i>w</i><sub>2</sub> = 0.2, <i>w</i><sub>3</sub> = 0.3.",
         body_style
     ))
     
