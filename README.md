@@ -1,59 +1,90 @@
-# Glance ML Internship Assignment: Multimodal Fashion & Context Retrieval
+# 🛍️ Glance Multimodal Fashion & Context Retrieval Search Engine
 
-An intelligent context-aware search engine that retrieves fashion images from a diverse database based on natural language queries, featuring an NLP-based **Compositional Guard** to prevent binding errors (e.g., distinguishing "red tie and white shirt" from "white tie and red shirt").
+[![Python Version](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-1.20%2B-ff4b4b?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-yellow?logo=huggingface&logoColor=white)](https://huggingface.co/)
+[![SQLite](https://img.shields.io/badge/Database-SQLite-003b57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-## Project Architecture
-The system consists of the following modules:
-1.  **Dataset Sourcing & Annotation (`generate_data.py`):** Automatically downloads 600 high-quality fashion images (5 injected evaluation targets + 595 streetwear images from Hugging Face's `look-bench`), extracts colors from bounding boxes, assigns balanced environments (Office, Park, Street, Home), and outputs metadata.
-2.  **Indexing Pipeline (`indexer.py`):** Uses a pre-trained `openai/clip-vit-base-patch32` model to generate visual and caption text embeddings, storing them in a local SQLite database (`data/fashion_index.db`).
-3.  **Retriever with Compositional Guard (`retriever.py`):** A custom ranking function combining visual similarity, text similarity, and a structured attribute score. Enforces color-garment bindings to solve CLIP's compositionality limits.
-4.  **Automated Evaluation (`evaluate.py`):** Automated test runner that executes the 5 required evaluation queries.
-5.  **Interactive Dashboard (`app.py`):** Streamlit web interface to search by natural language, view score breakdowns, filter by attributes, and adjust scoring weights.
-6.  **Submission PDF Report (`generate_report.py`):** Generates the final PDF report containing tradeoffs, chosen approach write-up, evaluation results, and scaling plans.
+An advanced, context-aware visual search engine that retrieves fashion apparel from a diverse database based on natural language queries. Built using **CLIP (Contrastive Language-Image Pre-training)** and protected by a custom, NLP-driven **Compositional Guard** to prevent color-garment binding errors (e.g., distinguishing *"red tie and white shirt"* from *"white tie and red shirt"*).
+
+Developed for the **Glance ML Internship Assignment**.
 
 ---
 
-## Setup & Running Instructions
+## 🎨 System Highlights & Design
+*   **🖼️ Balanced Real-World Dataset:** Sourced 600 images representing balanced variations across 4 environments (*Office, Park, Street, Home*), 3 clothing types (*Formal, Casual, Outerwear*), and a 12-color palette. Incorporates Hugging Face's `look-bench` (RealStreetLook) streetwear images.
+*   **🧠 Compositional Guard (ML Logic):** Standard CLIP embeddings often ignore word order, conflating attributes. Our custom guard parses search queries for specific color-clothing associations and applies a severe ranking penalty for mismatched bindings.
+*   **🎛️ Hybrid Scored Retrieval:** Combines Visual Cosine Similarity, Textual Caption Similarity, and Structured Categorical Matching using configurable weighting parameters:
+    $$\text{Score} = w_1 \cdot \text{Sim}_{\text{visual}} + w_2 \cdot \text{Sim}_{\text{textual}} + w_3 \cdot \text{Score}_{\text{attribute}}$$
+*   **📊 Premium Interactive Dashboard:** Built with Streamlit, enabling users to adjust weights dynamically, view step-by-step score breakdowns, filter categories, and run quick evaluation presets.
 
-### 1. Installation
-Clone the repository and install the dependencies:
+---
+
+## 📁 Repository Directory Structure
+```text
+fashion_retrieval/
+├── data/
+│   ├── images/               # [Ignored] Stores downloaded local dataset images
+│   ├── fashion_index.db      # [Ignored] Local SQLite vector database
+│   └── metadata.json         # Simulated annotations and captions for the 600 images
+├── app.py                    # Interactive Streamlit search dashboard
+├── indexer.py                # CLIP-based feature extractor and DB indexer
+├── retriever.py              # Query parser, hybrid similarity scorer, & Compositional Guard
+├── evaluate.py               # Automated test runner for evaluation queries
+├── generate_data.py          # Image downloader and attribute-annotator script
+├── generate_report.py        # ReportLab PDF compiler
+├── Glance_Submission_Report.pdf  # Final compiled submission report
+├── requirements.txt          # Python package requirements
+└── README.md                 # Project description and run guide
+```
+
+---
+
+## 🚀 Setup & Execution Guide
+
+### 1. Prerequisites & Installation
+Ensure you have Python 3.10+ installed. Clone the repository and install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Dataset Generation & Indexing
-Run the scripts sequentially to download the images and build the vector index:
+### 2. Dataset Sourcing & Annotation
+Run the dataset builder to pull images and generate metadata labels:
 ```bash
-# 1. Download and annotate the dataset (600 images)
 python generate_data.py
+```
+*Note: This will download 5 target images for evaluation queries and sample the remaining 595 images from Hugging Face's `look-bench`.*
 
-# 2. Extract CLIP embeddings and build the SQLite database
+### 3. Feature Extraction & Database Indexing
+Index the dataset into the SQLite database. This computes the CLIP visual and textual embeddings for all images:
+```bash
 python indexer.py
 ```
 
-### 3. Start the Interactive Web Dashboard
-Launch the Streamlit web application:
+### 4. Launch the Streamlit Dashboard
+Launch the interactive web dashboard:
 ```bash
 streamlit run app.py
 ```
-This will open the dashboard in your web browser (usually at `http://localhost:8501`).
+Open `http://localhost:8501` in your browser to explore the search engine!
 
-### 4. Run Evaluations
-To run the 5 required evaluation queries and print the pass/fail summary:
+### 5. Run Automated Evaluations
+To execute the 5 required evaluation queries and verify target retrieval performance:
 ```bash
 python evaluate.py
 ```
 
-### 5. Compile PDF Report
-To generate the final PDF report:
+### 6. Compile the PDF Report
+To compile or update the final PDF submission report:
 ```bash
 python generate_report.py
 ```
 
 ---
 
-## Evaluation Results
-The system achieved a **100% PASS rate** on the required evaluation queries:
+## 📈 Evaluation Performance Metrics
+The system achieves a **100% PASS rate** on all 5 evaluation queries with the correct target image retrieved at Rank 1:
 
 | Query Type | Query Prompt | Top 1 ID | Top 1 Score | Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -62,3 +93,10 @@ The system achieved a **100% PASS rate** on the required evaluation queries:
 | **Complex Semantic** | *"Someone wearing a blue shirt sitting on a park bench."* | `2` | `0.6004` | **PASS** |
 | **Style Inference** | *"Casual weekend outfit for a city walk."* | `3` | `0.4596` | **PASS** |
 | **Compositional** | *"A red tie and a white shirt in a formal setting."* | `4` | `0.5261` | **PASS** |
+
+---
+
+## 🔮 Scalability & Future Work
+*   **ANN HNSW Indexing:** Transitioning SQLite brute-force searches to dedicated Vector DBs (e.g. Milvus, FAISS, or Qdrant) for $O(\log N)$ latency at 1 million+ images.
+*   **VQA Verification:** Applying Visual Question Answering (VQA) on top candidates as a secondary verification pass to double-check attributes.
+*   **Geographic & Weather Expansion:** Integrating weather-attire classification and location tagging from EXIF metadata.
