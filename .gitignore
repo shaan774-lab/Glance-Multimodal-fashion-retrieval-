@@ -1,0 +1,33 @@
+# Ignore data directory contents (database and images)
+data/images/
+data/fashion_index.db
+data/eval_results.json
+
+# Ignore temporary test files
+test_inject/
+test_yellow/
+test_inject_wiki/
+test_scrape.py
+test_wikimedia.py
+test_wikimedia_debug.py
+test_imageinfo_debug.py
+list_hf_dataset.py
+list_look_bench.py
+inspect_parquet.py
+inspect_look_bench.py
+inspect_fashion_parquet.py
+list_fashion_files.py
+find_yellow_jacket.py
+find_yellow_jacket_computed.py
+find_by_category_text.py
+find_huggingface_fashion.py
+copy_targets.py
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Local environments
+.venv/
+env/
+venv/
