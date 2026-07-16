@@ -7,7 +7,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 
 def build_pdf():
-    pdf_filename = "Glance_Submission_Report.pdf"
+    pdf_filename = "Glance_Submission_Report_Final.pdf"
     print(f"Generating PDF report: {pdf_filename}...")
     
     # Load evaluation results if available
@@ -120,6 +120,7 @@ def build_pdf():
     # Title & Header
     story.append(Paragraph("Glance ML Internship Assignment Submission", title_style))
     story.append(Paragraph("<b>Task:</b> Multimodal Fashion & Context Retrieval System", subtitle_style))
+    story.append(Paragraph("<b>GitHub Codebase:</b> <font color='#4F46E5'><a href='https://github.com/shaan774-lab/Glance-Multimodal-fashion-retrieval-'>https://github.com/shaan774-lab/Glance-Multimodal-fashion-retrieval-</a></font>", subtitle_style))
     story.append(Spacer(1, 10))
     
     # Section 1
