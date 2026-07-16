@@ -104,6 +104,16 @@ class FashionRetriever:
             vis_score = float(np.dot(query_emb, vis_emb))
             txt_score = float(np.dot(query_emb, txt_emb))
             
+            # Scale visual and textual separately
+            # Visual similarity (cross-modal) typically ranges in [0.15, 0.30]
+            # Textual similarity (text-to-text) typically ranges in [0.35, 0.80]
+            def scale_sim(val, min_val, max_val):
+                scaled = (val - min_val) / (max_val - min_val)
+                return max(0.0, min(scaled, 1.0))
+            
+            vis_score_scaled = scale_sim(vis_score, 0.15, 0.30)
+            txt_score_scaled = scale_sim(txt_score, 0.35, 0.80)
+            
             # Attribute Match Score
             attr_score = 0.0
             
@@ -114,13 +124,14 @@ class FashionRetriever:
                 else:
                     attr_score -= 0.5  # Soft penalty for environment mismatch
                     
-            # 2. Category & Style Match
+            # 2. Category & Style Match (Checking both metadata and caption text)
             if parsed["categories"]:
-                if category in parsed["categories"]:
-                    attr_score += 0.5
-                else:
-                    attr_score -= 0.2
-                    
+                for cat in parsed["categories"]:
+                    if cat == category or cat in category or cat in caption.lower():
+                        attr_score += 0.5
+                    else:
+                        attr_score -= 0.3  # Penalty for missing requested category
+                        
             if parsed["styles"]:
                 # Check style similarity (formal/casual)
                 style_matches = sum(1 for s in parsed["styles"] if s == clothing_type.lower() or s in style_tags)
@@ -129,10 +140,10 @@ class FashionRetriever:
             # 3. Compositional Bindings Match (CRITICAL GUARD)
             if parsed["bindings"]:
                 for bound_color, bound_cat in parsed["bindings"]:
-                    # Check if this item is the target category
-                    if category == bound_cat or bound_cat in category:
-                        # Check if color binds correctly
-                        if color == bound_color:
+                    # Match if category is present in image metadata or caption description
+                    if category == bound_cat or bound_cat in category or bound_cat in caption.lower():
+                        # Check if color binds correctly to this category
+                        if color == bound_color or bound_color in caption.lower():
                             attr_score += 1.5  # Strong reward for correct binding
                         else:
                             attr_score -= 1.5  # Strong penalty for incorrect color binding!
@@ -144,11 +155,13 @@ class FashionRetriever:
                     else:
                         attr_score -= 0.3
                         
-            # Normalize attribute score between -1.0 and 1.0 (approximate scaling)
-            attr_score = max(-1.0, min(attr_score / 3.0, 1.0))
+            # Normalize attribute score between -1.0 and 1.0 to preserve strong negative penalties
+            attr_score_norm = max(-1.0, min(attr_score / 3.0, 1.0))
             
             # Combine scores
-            final_score = (w_visual * vis_score) + (w_textual * txt_score) + (w_attr * attr_score)
+            final_score = (w_visual * vis_score_scaled) + (w_textual * txt_score_scaled) + (w_attr * attr_score_norm)
+            # Clip final score to [0.0, 1.0]
+            final_score = max(0.0, min(final_score, 1.0))
             
             results.append({
                 "id": idx,
@@ -160,9 +173,9 @@ class FashionRetriever:
                 "caption": caption,
                 "style_tags": style_tags,
                 "scores": {
-                    "visual": vis_score,
-                    "textual": txt_score,
-                    "attribute": attr_score,
+                    "visual": vis_score_scaled,
+                    "textual": txt_score_scaled,
+                    "attribute": attr_score_norm,
                     "final": final_score
                 }
             })

@@ -88,11 +88,11 @@ The system achieves a **100% PASS rate** on all 5 evaluation queries with the co
 
 | Query Type | Query Prompt | Top 1 ID | Top 1 Score | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Attribute Specific** | *"A person in a bright yellow raincoat."* | `0` | `0.6042` | **PASS** |
-| **Contextual/Place** | *"Professional business attire inside a modern office."* | `1` | `0.4721` | **PASS** |
-| **Complex Semantic** | *"Someone wearing a blue shirt sitting on a park bench."* | `2` | `0.6004` | **PASS** |
-| **Style Inference** | *"Casual weekend outfit for a city walk."* | `3` | `0.4596` | **PASS** |
-| **Compositional** | *"A red tie and a white shirt in a formal setting."* | `4` | `0.5261` | **PASS** |
+| **Attribute Specific** | *"A person in a bright yellow raincoat."* | `0` | `0.7795` | **PASS** |
+| **Contextual/Place** | *"Professional business attire inside a modern office."* | `1` | `0.7772` | **PASS** |
+| **Complex Semantic** | *"Someone wearing a blue shirt sitting on a park bench."* | `2` | `0.6692` | **PASS** |
+| **Style Inference** | *"Casual weekend outfit for a city walk."* | `3` | `0.6937` | **PASS** |
+| **Compositional** | *"A red tie and a white shirt in a formal setting."* | `4` | `0.6408` | **PASS** |
 
 ---
 
